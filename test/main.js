@@ -59,25 +59,27 @@ tap.test('FramedMsg._write() - write encoded messages on stream - should emit bu
     let n = 0;
 
     msg.on('data', (message) => {
-        switch (n++) {
-        case 0:
+        if (n === 0) {
             t.equal(message.length, 1);
             t.equal(message[0].toString(), 'foo');
-            break;
+            n++;
+            return;
+        }
 
-        case 1:
+        if (n === 1) {
             t.equal(message.length, 2);
             t.equal(message[0].toString(), 'foo');
             t.equal(message[1].toString(), 'bar');
-            break;
+            n++;
+            return;
+        }
 
-        case 2:
+        if (n === 2) {
             t.equal(message.length, 3);
             t.equal(message[0].toString(), 'foo');
             t.equal(message[1].toString(), 'bar');
             t.equal(message[2].toString(), 'xyz');
             t.end();
-            break;
         }
     });
 

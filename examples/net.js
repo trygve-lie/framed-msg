@@ -4,7 +4,7 @@ const Msg = require('../');
 const net = require('net');
 
 // Socket server
-const server = net.createServer((socket) => {
+net.createServer((socket) => {
     const msg = new Msg();
 
     msg.on('data', (message) => {
