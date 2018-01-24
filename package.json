@@ -1,0 +1,33 @@
+{
+  "name": "framed-msg",
+  "version": "1.0.0",
+  "description": "",
+  "main": "./lib/main.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "bench": "node benchmark/main.js",
+    "test": "tap test/*.js",
+    "test:coverage": "tap test/*.js --cov",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/trygve-lie/framed-msg.git"
+  },
+  "author": "Trygve Lie",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/trygve-lie/framed-msg/issues"
+  },
+  "homepage": "https://github.com/trygve-lie/framed-msg#readme",
+  "devDependencies": {
+    "eslint": "4.16.0",
+    "eslint-config-airbnb-base": "12.1.0",
+    "eslint-plugin-import": "2.8.0",
+    "benchmark": "2.1.4",
+    "tap": "11.0.1"
+  }
+}
