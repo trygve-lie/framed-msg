@@ -1,7 +1,10 @@
 'use strict';
 
+const crypto = require('crypto');
 const Msg = require('../');
 const tap = require('tap');
+
+const LARGE_BUFFER = crypto.randomFillSync(Buffer.alloc(1048576));
 
 /**
  * Constructor
@@ -41,6 +44,15 @@ tap.test('FramedMsg.*code() - multiple arguments to encoder - should decode into
     t.equal(msg.length, 2);
     t.equal(msg[0].toString(), 'foo');
     t.equal(msg[1].toString(), 'bar');
+    t.end();
+});
+
+tap.test('FramedMsg.*code() - large buffer - should decode and decode', (t) => {
+    const bin = Msg.encode([LARGE_BUFFER]);
+    const msg = Msg.decode(bin);
+
+    t.equal(msg.length, 1);
+    t.equal(msg[0].toString('hex'), LARGE_BUFFER.toString('hex'));
     t.end();
 });
 
@@ -145,4 +157,17 @@ tap.test('FramedMsg._write() - message spreads over multiple stream chunks - sho
     msg.write(srcB.slice(13, 20)); // chunked mesage - cuts before "y" in "xyz"
     msg.write(srcB.slice(20, srcB.length)); // chunked mesage - rest of message
     msg.write(srcC); // full message
+});
+
+tap.test('FramedMsg._write() - one large buffer - should emit one message', (t) => {
+    const msg = new Msg();
+    const a = Msg.encode([LARGE_BUFFER]);
+
+    msg.on('data', (message) => {
+        t.equal(message.length, 1);
+        t.equal(message[0].toString('hex'), LARGE_BUFFER.toString('hex'));
+        t.end();
+    });
+
+    msg.write(a);
 });
