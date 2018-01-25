@@ -87,3 +87,62 @@ tap.test('FramedMsg._write() - write encoded messages on stream - should emit bu
     msg.write(b);
     msg.write(c);
 });
+
+tap.test('FramedMsg._write() - message holds only head and one frame, no argument - should emit empty message', (t) => {
+    const msg = new Msg();
+    const a = Msg.encode([Buffer.from([])]);
+
+    msg.on('data', (message) => {
+        t.equal(message.length, 1);
+        t.equal(message[0].toString(), '');
+        t.end();
+    });
+
+    msg.write(a);
+});
+
+
+tap.test('FramedMsg._write() - message spreads over multiple stream chunks - should emit message event for each message', (t) => {
+    const msg = new Msg();
+
+    let n = 0;
+
+    msg.on('data', (message) => {
+        if (n === 0) {
+            t.equal(message.length, 3);
+            t.equal(message[0].toString(), 'a-foo');
+            t.equal(message[1].toString(), 'a-bar');
+            t.equal(message[2].toString(), 'a-xyz');
+            n++;
+            return;
+        }
+
+        if (n === 1) {
+            t.equal(message.length, 3);
+            t.equal(message[0].toString(), 'foo');
+            t.equal(message[1].toString(), 'bar');
+            t.equal(message[2].toString(), 'xyz');
+            n++;
+            return;
+        }
+
+        if (n === 2) {
+            t.equal(message.length, 3);
+            t.equal(message[0].toString(), 'c-foo');
+            t.equal(message[1].toString(), 'c-bar');
+            t.equal(message[2].toString(), 'c-xyz');
+            t.end();
+        }
+    });
+
+    const srcA = Msg.encode([Buffer.from('a-foo'), Buffer.from('a-bar'), Buffer.from('a-xyz')]);
+    const srcB = Msg.encode([Buffer.from('foo'), Buffer.from('bar'), Buffer.from('xyz')]);
+    const srcC = Msg.encode([Buffer.from('c-foo'), Buffer.from('c-bar'), Buffer.from('c-xyz')]);
+
+    msg.write(srcA); // full message
+    msg.write(srcB.slice(0, 7)); // chunked mesage - cuts before last "o" in "foo"
+    msg.write(srcB.slice(7, 13)); // chunked mesage - cuts before "a" in "bar"
+    msg.write(srcB.slice(13, 20)); // chunked mesage - cuts before "y" in "xyz"
+    msg.write(srcB.slice(20, srcB.length)); // chunked mesage - rest of message
+    msg.write(srcC); // full message
+});
