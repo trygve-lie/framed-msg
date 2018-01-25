@@ -16,7 +16,7 @@ $ npm install framed-msg
 Encode and decode a message:
 
 ```js
-const Msg = require('framed-msg);
+const Msg = require('framed-msg');
 const bin = Msg.encode([Buffer.from('Hello'), Buffer.from('World')]);
 const msg = Msg.decode(bin);
 
@@ -26,7 +26,7 @@ console.log(msg[0].toString(), msg[1].toString()); // Prints; Hello World
 Stream decoding a message:
 
 ```js
-const Msg = require('framed-msg);
+const Msg = require('framed-msg');
 const msg = new Msg();
 const bin = Msg.encode([Buffer.from('Hello'), Buffer.from('World')]);
 
