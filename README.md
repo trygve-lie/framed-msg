@@ -16,9 +16,9 @@ $ npm install framed-msg
 Encode and decode a message:
 
 ```js
-const Msg = require('framed-msg');
-const bin = Msg.encode([Buffer.from('Hello'), Buffer.from('World')]);
-const msg = Msg.decode(bin);
+const fmsg = require('framed-msg');
+const bin = fmsg.encode([Buffer.from('Hello'), Buffer.from('World')]);
+const msg = fmsg.decode(bin);
 
 console.log(msg[0].toString(), msg[1].toString()); // Prints; Hello World
 ```
@@ -26,9 +26,9 @@ console.log(msg[0].toString(), msg[1].toString()); // Prints; Hello World
 Stream decoding a message:
 
 ```js
-const Msg = require('framed-msg');
-const msg = new Msg();
-const bin = Msg.encode([Buffer.from('Hello'), Buffer.from('World')]);
+const fmsg = require('framed-msg');
+const msg = new fmsg.DecodeStream();
+const bin = fmsg.encode([Buffer.from('Hello'), Buffer.from('World')]);
 
 msg.on('data', (m) => {
     console.log(m[0].toString(), m[1].toString()); // Prints; Hello World
@@ -47,7 +47,7 @@ On node.js version 9.4.0:
 
 .encode() x 2,096,246 ops/sec ±0.69% (91 runs sampled)
 .decode() x 5,474,602 ops/sec ±1.20% (93 runs sampled)
-stream.write() x 1,044,913 ops/sec ±31.77% (67 runs sampled)
+.decodeStream() x 1,044,913 ops/sec ±31.77% (67 runs sampled)
 ```
 
 

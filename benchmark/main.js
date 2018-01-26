@@ -1,7 +1,7 @@
 'use strict';
 
 const benchmark = require('benchmark');
-const Msg = require('../');
+const fmsg = require('../');
 
 const suite = new benchmark.Suite();
 
@@ -17,7 +17,7 @@ const add = (name, fn) => {
 const msg1 = [Buffer.from('foo'), Buffer.from('bar')];
 
 add('.encode()', () => {
-    Msg.encode(msg1);
+    fmsg.encode(msg1);
 });
 
 
@@ -25,21 +25,21 @@ add('.encode()', () => {
  * .decode()
  */
 
-const bin1 = Msg.encode([Buffer.from('foo'), Buffer.from('bar')]);
+const bin1 = fmsg.encode([Buffer.from('foo'), Buffer.from('bar')]);
 
 add('.decode()', () => {
-    Msg.decode(bin1);
+    fmsg.decode(bin1);
 });
 
 
 /**
- * stream.write()
+ * DecodeStream()
  */
 
-const bin2 = Msg.encode([Buffer.from('foo'), Buffer.from('bar')]);
-const message = new Msg();
+const bin2 = fmsg.encode([Buffer.from('foo'), Buffer.from('bar')]);
+const message = new fmsg.DecodeStream();
 
-add('stream.write()', () => {
+add('.decodeStream()', () => {
     message.write(bin2);
 });
 
