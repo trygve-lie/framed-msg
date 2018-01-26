@@ -37,6 +37,70 @@ msg.on('data', (m) => {
 msg.write(bin);
 ```
 
+## API
+
+This module have the following API:
+
+### .encode(bufs)
+
+Encodes an Array of Buffers into a framed message.
+
+```js
+const fmsg = require('framed-msg');
+const bin = fmsg.encode([Buffer.from('Hello'), Buffer.from('World')]);
+```
+
+### .decode(message)
+
+Decodes a framed message into an Array of Buffers.
+
+```js
+const fmsg = require('framed-msg');
+const msg = fmsg.decode(msgFromEncoder);
+```
+
+### .streamDecode()
+
+A transform stream for stream decoding framed messages.
+
+```js
+const fmsg = require('framed-msg');
+const net = require('net');
+
+net.createServer((socket) => {
+    const decoder = new fmsg.DecodeStream();
+    decoder.on('data', (msg) => {
+        msg.forEach((item) => {
+            console.log(item.toString());
+        });
+    });
+    socket.pipe(decoder);
+}).listen(3000);
+
+const client = net.connect(3000);
+const msg = fmsg.encode([Buffer.from('Helo'), Buffer.from('Worlds')]);
+client.write(msg);
+```
+
+
+## Protocol
+
+The protocol is simple. The first byte of the message contains an
+argument count of the number of arguments to expect in the message.
+
+Its then followed by a pair of size frames and arguments. The size
+frame is a 32-bit unsigned integer providing the size of the following
+argument. The argument can be any opaque binary so it can hold any
+String, stringified JSON, image etc...
+
+The massage can hold up to 128 arguments.
+
+```
++--------+----------+--------+----------+--------+
+| <argc> | <length> | <data> | <length> | <data> | etc..
++--------+----------+--------+----------+--------+
+```
+
 
 ## Benchmarks
 
