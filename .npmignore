@@ -3,4 +3,6 @@ node_modules
 .gitignore
 .npmignore
 .eslintrc
+.eslintignore
 .travis.yml
+.nyc_output
