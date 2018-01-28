@@ -27,13 +27,11 @@ Stream decoding a message:
 
 ```js
 const fmsg = require('framed-msg');
+
 const msg = new fmsg.DecodeStream();
+msg.pipe(process.stdout)
+
 const bin = fmsg.encode([Buffer.from('Hello'), Buffer.from('World')]);
-
-msg.on('data', (m) => {
-    console.log(m[0].toString(), m[1].toString()); // Prints; Hello World
-});
-
 msg.write(bin);
 ```
 
@@ -64,17 +62,20 @@ const msg = fmsg.decode(msgFromEncoder);
 A transform stream for stream decoding framed messages.
 
 ```js
+const stream = require('stream');
 const fmsg = require('framed-msg');
 const net = require('net');
 
 net.createServer((socket) => {
     const decoder = new fmsg.DecodeStream();
-    decoder.on('data', (msg) => {
-        msg.forEach((item) => {
-            console.log(item.toString());
-        });
-    });
-    socket.pipe(decoder);
+    socket.pipe(decoder).pipe(new stream.Writable({
+        objectMode: true,
+        write: (chunk, enc, next) => {
+            console.log(chunk[0].toString());  // Hello
+            console.log(chunk[1].toString());  // World
+            next();
+        }
+    }));
 }).listen(3000);
 
 const client = net.connect(3000);

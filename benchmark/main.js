@@ -1,6 +1,7 @@
 'use strict';
 
 const benchmark = require('benchmark');
+const stream = require('stream');
 const fmsg = require('../');
 
 const suite = new benchmark.Suite();
@@ -38,6 +39,13 @@ add('.decode()', () => {
 
 const bin2 = fmsg.encode([Buffer.from('foo'), Buffer.from('bar')]);
 const message = new fmsg.DecodeStream();
+message.pipe(new stream.Writable({
+    objectMode: true,
+    write: (chunk, enc, next) => {
+        // console.log('chunk', chunk)
+        next();
+    }
+}));
 
 add('.decodeStream()', () => {
     message.write(bin2);

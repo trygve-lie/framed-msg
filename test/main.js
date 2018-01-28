@@ -56,7 +56,33 @@ tap.test('.decodeStream() - object type - should be FramedMsg', (t) => {
     t.end();
 });
 
-tap.test('.decodeStream() - write encoded messages on stream - should emit buffer on data event', (t) => {
+tap.test('.decodeStream() - write one messages with one argument on stream - should emit one message with one argument', (t) => {
+    const msg = new fmsg.DecodeStream();
+    const buf = fmsg.encode([Buffer.from('foo')]);
+
+    msg.on('data', (message) => {
+        t.equal(message.length, 1);
+        t.equal(message[0].toString(), 'foo');
+        t.end();
+    });
+
+    msg.write(buf);
+});
+
+tap.test('.decodeStream() - write one messages with multiple arguments on stream - should emit one message with multiple arguments', (t) => {
+    const msg = new fmsg.DecodeStream();
+    const buf = fmsg.encode([Buffer.from('foo'), Buffer.from('bar'), Buffer.from('xyz')]);
+
+    msg.on('data', (message) => {
+        t.equal(message.length, 3);
+        t.equal(message[0].toString(), 'foo');
+        t.end();
+    });
+
+    msg.write(buf);
+});
+
+tap.test('.decodeStream() - write multiple messages on stream - should emit multiple messages', (t) => {
     const msg = new fmsg.DecodeStream();
 
     const a = fmsg.encode([Buffer.from('foo')]);
@@ -107,7 +133,6 @@ tap.test('.decodeStream() - message holds only head and one frame, no argument -
 
     msg.write(a);
 });
-
 
 tap.test('.decodeStream() - message spreads over multiple stream chunks - should emit message event for each message', (t) => {
     const msg = new fmsg.DecodeStream();
@@ -165,4 +190,45 @@ tap.test('.decodeStream() - one large buffer - should emit one message', (t) => 
     });
 
     msg.write(a);
+});
+
+
+tap.test('.decodeStream() - multiple messages in one chunk - should emit multiple messages', (t) => {
+    const msg = new fmsg.DecodeStream();
+
+    const a = fmsg.encode([Buffer.from('a-foo'), Buffer.from('a-bar'), Buffer.from('a-xyz')]);
+    const b = fmsg.encode([Buffer.from('b-foo'), Buffer.from('b-bar'), Buffer.from('b-xyz')]);
+    const c = fmsg.encode([Buffer.from('c-foo'), Buffer.from('c-bar'), Buffer.from('c-xyz')]);
+
+    let n = 0;
+
+    msg.on('data', (message) => {
+        if (n === 0) {
+            t.equal(message.length, 3);
+            t.equal(message[0].toString(), 'a-foo');
+            t.equal(message[1].toString(), 'a-bar');
+            t.equal(message[2].toString(), 'a-xyz');
+            n++;
+            return;
+        }
+
+        if (n === 1) {
+            t.equal(message.length, 3);
+            t.equal(message[0].toString(), 'b-foo');
+            t.equal(message[1].toString(), 'b-bar');
+            t.equal(message[2].toString(), 'b-xyz');
+            n++;
+            return;
+        }
+
+        if (n === 2) {
+            t.equal(message.length, 3);
+            t.equal(message[0].toString(), 'c-foo');
+            t.equal(message[1].toString(), 'c-bar');
+            t.equal(message[2].toString(), 'c-xyz');
+            t.end();
+        }
+    });
+
+    msg.write(Buffer.concat([a, b, c]));
 });

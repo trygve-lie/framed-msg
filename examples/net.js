@@ -1,17 +1,19 @@
 'use strict';
 
+const stream = require('stream');
 const fmsg = require('../');
 const net = require('net');
 
 // Socket server
 net.createServer((socket) => {
     const msg = new fmsg.DecodeStream();
-
-    msg.on('data', (message) => {
-        console.log(message[0].toString(), message[1].toString(), message[2].toString());
-    });
-
-    socket.pipe(msg);
+    socket.pipe(msg).pipe(new stream.Writable({
+        objectMode: true,
+        write: (chnk, enc, next) => {
+            console.log(chnk[0].toString(), chnk[1].toString(), chnk[2].toString());
+            next();
+        }
+    }));
 }).listen(3000);
 
 
