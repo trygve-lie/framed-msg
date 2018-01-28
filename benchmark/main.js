@@ -14,24 +14,24 @@ const add = (name, fn) => {
 /**
  * .encode()
  */
-/*
+
 const msg1 = [Buffer.from('foo'), Buffer.from('bar')];
 
 add('.encode()', () => {
     fmsg.encode(msg1);
 });
-*/
+
 
 /**
  * .decode()
  */
-/*
+
 const bin1 = fmsg.encode([Buffer.from('foo'), Buffer.from('bar')]);
 
 add('.decode()', () => {
     fmsg.decode(bin1);
 });
-*/
+
 
 /**
  * DecodeStream()
@@ -42,10 +42,10 @@ const message = new fmsg.DecodeStream();
 message.pipe(new stream.Writable({
     objectMode: true,
     write: (chunk, enc, next) => {
-        //console.log('chunk', chunk)
+        // console.log('chunk', chunk)
         next();
     }
-}))
+}));
 
 add('.decodeStream()', () => {
     message.write(bin2);

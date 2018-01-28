@@ -230,5 +230,5 @@ tap.test('.decodeStream() - multiple messages in one chunk - should emit multipl
         }
     });
 
-    msg.write(Buffer.concat([a,b,c]));
+    msg.write(Buffer.concat([a, b, c]));
 });
