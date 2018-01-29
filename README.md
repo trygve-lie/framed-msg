@@ -79,7 +79,7 @@ net.createServer((socket) => {
 }).listen(3000);
 
 const client = net.connect(3000);
-const msg = fmsg.encode([Buffer.from('Helo'), Buffer.from('Worlds')]);
+const msg = fmsg.encode([Buffer.from('Hello'), Buffer.from('Worlds')]);
 client.write(msg);
 ```
 
@@ -110,7 +110,7 @@ const encoder = new fmsg.EncodeStream();
 const src = new stream.Readable({
     objectMode: true,
     read() {
-        this.push([Buffer.from('Helo'), Buffer.from('Worlds')]);
+        this.push([Buffer.from('Hello'), Buffer.from('Worlds')]);
         this.push(null);
     }
 });
