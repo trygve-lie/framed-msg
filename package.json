@@ -1,6 +1,6 @@
 {
   "name": "framed-msg",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "A framing message protocol for packing multiple opaque binary arguments. Comes with both static and stream based parser API.",
   "keywords": [
     "message",
