@@ -79,14 +79,49 @@ net.createServer((socket) => {
 }).listen(3000);
 
 const client = net.connect(3000);
-const msg = fmsg.encode([Buffer.from('Helo'), Buffer.from('Worlds')]);
+const msg = fmsg.encode([Buffer.from('Hello'), Buffer.from('Worlds')]);
 client.write(msg);
+```
+
+### .streamEncode()
+
+A transform stream for stream encoding framed messages.
+
+```js
+const stream = require('stream');
+const fmsg = require('framed-msg');
+const net = require('net');
+
+net.createServer((socket) => {
+    const decoder = new fmsg.DecodeStream();
+    socket.pipe(decoder).pipe(new stream.Writable({
+        objectMode: true,
+        write: (chunk, enc, next) => {
+            console.log(chunk[0].toString());  // Hello
+            console.log(chunk[1].toString());  // World
+            next();
+        }
+    }));
+}).listen(3000);
+
+const client = net.connect(3000);
+
+const encoder = new fmsg.EncodeStream();
+const src = new stream.Readable({
+    objectMode: true,
+    read() {
+        this.push([Buffer.from('Hello'), Buffer.from('Worlds')]);
+        this.push(null);
+    }
+});
+
+src.pipe(encoder).pipe(client)
 ```
 
 
 ## Protocol
 
-The protocol is simple. The first byte of the message contains an
+The protocol goes as follow. The first byte of the message contains an
 argument count of the number of arguments to expect in the message.
 
 Its then followed by a pair of size frames and arguments. The size

@@ -1,8 +1,39 @@
 'use strict';
 
 const crypto = require('crypto');
+const stream = require('stream');
 const fmsg = require('../');
 const tap = require('tap');
+
+const srcObjectStream = (arr) => {
+    return new stream.Readable({
+        objectMode: true,
+        read() {
+            arr.forEach((item) => {
+                this.push(item);
+            });
+            this.push(null);
+        }
+    });
+};
+
+const destObjectStream = (done) => {
+    const arr = [];
+
+    const dStream = new stream.Writable({
+        objectMode: true,
+        write(chunk, encoding, callback) {
+            arr.push(chunk);
+            callback();
+        }
+    });
+
+    dStream.on('finish', () => {
+        done(arr);
+    });
+
+    return dStream;
+};
 
 const LARGE_BUFFER = crypto.randomFillSync(Buffer.alloc(1048576));
 
@@ -17,10 +48,11 @@ tap.test('.encode() - More than 128 arguments - should throw', (t) => {
     }
 
     t.throws(() => {
-        fmsg.encode(arr)
+        fmsg.encode(arr);
     }, new RangeError('Too many arguments. Protocol can not contain more then 128 arguments'));
     t.end();
 });
+
 
 
 /**
@@ -63,11 +95,12 @@ tap.test('.*code() - large buffer - should decode and decode', (t) => {
 });
 
 
+
 /**
  * DecodeStream()
  */
 
-tap.test('.decodeStream() - object type - should be FramedMsg', (t) => {
+tap.test('.decodeStream() - object type - should be FramedMsgDecodeStream', (t) => {
     const message = new fmsg.DecodeStream();
     t.equal(Object.prototype.toString.call(message), '[object FramedMsgDecodeStream]');
     t.end();
@@ -248,4 +281,44 @@ tap.test('.decodeStream() - multiple messages in one chunk - should emit multipl
     });
 
     msg.write(Buffer.concat([a, b, c]));
+});
+
+
+
+/**
+ * EncodeStream()
+ */
+
+tap.test('.encodeStream() - object type - should be FramedMsgEncodeStream', (t) => {
+    const message = new fmsg.EncodeStream();
+    t.equal(Object.prototype.toString.call(message), '[object FramedMsgEncodeStream]');
+    t.end();
+});
+
+tap.test('.encodeStream() - stream endoce messages - should emit same messages when decoded', (t) => {
+    const encode = new fmsg.EncodeStream();
+    const decode = new fmsg.DecodeStream();
+
+    const from = srcObjectStream([
+        [Buffer.from('a-foo'), Buffer.from('a-bar'), Buffer.from('a-xyz')],
+        [Buffer.from('b-foo'), Buffer.from('b-bar'), Buffer.from('b-xyz')],
+        [Buffer.from('c-foo'), Buffer.from('c-bar'), Buffer.from('c-xyz')],
+    ]);
+
+    const to = destObjectStream((arr) => {
+        t.equal(arr[0][0].toString(), 'a-foo');
+        t.equal(arr[0][1].toString(), 'a-bar');
+        t.equal(arr[0][2].toString(), 'a-xyz');
+
+        t.equal(arr[1][0].toString(), 'b-foo');
+        t.equal(arr[1][1].toString(), 'b-bar');
+        t.equal(arr[1][2].toString(), 'b-xyz');
+
+        t.equal(arr[2][0].toString(), 'c-foo');
+        t.equal(arr[2][1].toString(), 'c-bar');
+        t.equal(arr[2][2].toString(), 'c-xyz');
+        t.end();
+    });
+
+    from.pipe(encode).pipe(decode).pipe(to);
 });
