@@ -7,6 +7,23 @@ const tap = require('tap');
 const LARGE_BUFFER = crypto.randomFillSync(Buffer.alloc(1048576));
 
 /**
+ * .encode()
+ */
+
+tap.test('.encode() - More than 128 arguments - should throw', (t) => {
+    const arr = [];
+    for (let i = 0; i < 200; i++) {
+        arr.push(i.toString());
+    }
+
+    t.throws(() => {
+        fmsg.encode(arr)
+    }, new RangeError('Too many arguments. Protocol can not contain more then 128 arguments'));
+    t.end();
+});
+
+
+/**
  * .encode() - .decode()
  */
 
