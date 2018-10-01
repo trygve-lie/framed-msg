@@ -1,6 +1,6 @@
 # framed-msg
 
-[![Dependencies](https://img.shields.io/david/trygve-lie/framed-msg.svg?style=flat-square)](https://david-dm.org/trygve-lie/framed-msg)[![Build Status](http://img.shields.io/travis/trygve-lie/framed-msg/master.svg?style=flat-square)](https://travis-ci.org/trygve-lie/framed-msg)
+[![Dependencies](https://img.shields.io/david/trygve-lie/framed-msg.svg?style=flat-square)](https://david-dm.org/trygve-lie/framed-msg)[![Build Status](http://img.shields.io/travis/trygve-lie/framed-msg/master.svg?style=flat-square)](https://travis-ci.org/trygve-lie/framed-msg) [![Greenkeeper badge](https://badges.greenkeeper.io/trygve-lie/framed-msg.svg)](https://greenkeeper.io/)
 
 A framing message protocol for packing multiple opaque binary arguments. Comes
 with both static and stream based parser API.
